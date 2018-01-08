@@ -6,49 +6,46 @@
     /// <summary>
     /// The 'Singleton class'
     /// </summary>
-    class LoadBalancer
+    sealed class LoadBalancer
     {
-        private static LoadBalancer instance;
-        private List<string> servers = new List<string>();
+        // Static members are eagerly initialized that is
+        // immediately when class is load for the first time.
+        // .Net guarantees thread safety for static initialization
+        private static readonly LoadBalancer instance = new LoadBalancer();
+
+        /// <summary>
+        /// Type safe generic list of servers
+        /// </summary>
+        private List<Server> servers;
         private Random random = new Random();
 
-        // Lock synchronization object
-        private static object syncLock = new object();
 
-        // Constructor 
-        protected LoadBalancer ()
+        // Constructor is private
+        private LoadBalancer()
         {
-            // List of available servers
-            servers.Add("ServerI");
-            servers.Add("ServerII");
-            servers.Add("ServerIII");
-            servers.Add("ServerIV");
-            servers.Add("ServerV");
+            // Load list of available servers
+            servers = new List<Server>
+            {
+                new Server{ Name = "ServerI", IP = "120.14.220.18" },
+                new Server{ Name = "ServerII", IP = "120.14.220.19" },
+                new Server{ Name = "ServerIII", IP = "120.14.220.20" },
+                new Server{ Name = "ServerIV", IP = "120.14.220.21" },
+                new Server{ Name = "ServerV", IP = "120.14.220.22" },
+            };
         }
 
         public static LoadBalancer GetLoadBalancer()
         {
-            // Support multithreaded application through
-            // Double checked locking  pattern which once the instance exists
-            // Avoids locking each time method is invoked.
-            if(instance == null)
-            {
-                lock(syncLock)
-                {
-                    if (instance == null)
-                        instance = new LoadBalancer();
-                }
-            }
             return instance;
         }
 
         // Simple, but effective random load balancer
-        public string Server
+        public Server NextServer
         {
             get
             {
                 int r = random.Next(servers.Count);
-                return servers[r].ToString();
+                return servers[r];
             }
         }
     }

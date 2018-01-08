@@ -29,8 +29,8 @@
             {
                 for(int  i=0;i<15;i++)
                 {
-                    string server = balancer.Server;
-                    Console.WriteLine("Dispatch request to: " + server);
+                    string serverName = balancer.NextServer.Name;
+                    Console.WriteLine("Dispatch request to: " + serverName);
                 }
             }
 
